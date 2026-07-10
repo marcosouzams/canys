@@ -18,8 +18,7 @@ env:
   AWS_REGION: us-east-1
   AWS_ROLE_ARN: arn:aws:iam::202077713431:role/canys-github-deploy
   S3_BUCKET: canys-site-b44af36c
-  # Preenchido depois que a distribuição CloudFront for criada:
-  CLOUDFRONT_DISTRIBUTION_ID: ""
+  CLOUDFRONT_DISTRIBUTION_ID: EM5PUFX8CLXNE
 
 jobs:
   deploy:
