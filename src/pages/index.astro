@@ -1,0 +1,48 @@
+---
+import '@fontsource/monofett';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="dark" />
+    <title>canys</title>
+  </head>
+  <body>
+    <main>
+      <h1>canys</h1>
+    </main>
+  </body>
+</html>
+
+<style>
+  :global(html),
+  :global(body) {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #000;
+  }
+
+  main {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+
+  h1 {
+    margin: 0;
+    font-family: 'Monofett', monospace;
+    font-weight: 400;
+    text-transform: lowercase;
+    color: #fff;
+    font-size: clamp(4rem, 22vw, 16rem);
+    line-height: 1;
+    letter-spacing: 0.04em;
+    user-select: none;
+  }
+</style>
