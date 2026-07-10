@@ -13,5 +13,10 @@ npm run preview  # pré-visualiza o build
 
 ## Hospedagem
 
-Site estático servido na AWS (S3 + CloudFront). O deploy automático via GitHub
-Actions será configurado em etapa seguinte.
+Site estático servido na AWS (S3 privado + CloudFront + Route 53). O deploy
+automático roda via GitHub Actions (OIDC) a cada push na `main`.
+
+**Estado da infraestrutura, o que falta e como concluir/deployar:** veja
+[DEPLOY.md](DEPLOY.md).
+
+No ar (URL padrão, enquanto o domínio propaga): https://d2krik7nhbw5p3.cloudfront.net
