@@ -119,6 +119,64 @@ publica via OIDC (role `canys-github-deploy`), sem chaves guardadas no GitHub.
 2. **Node.js 22+** e **npm** (para buildar/deployar).
 3. `git` com acesso ao repositório `git@github.com:marcosouzams/canys.git`.
 
+## E-mail (@canys.com.br)
+
+Envio/recebimento serverless com **SES + S3 + Lambda**, e webmail próprio em
+**https://canys.com.br/mail** (estilo Gmail): editor rico tiptap, imagens
+inline, anexos, busca, pastas (entrada, estrela, rascunhos c/ autosave,
+enviados, spam c/ classificação automática do SES, lixeira, arquivo), seleção
+em lote, desfazer, menu de clique direito, perfil (nome de exibição usado no
+"De:", foto e troca de senha) e modais/snackbars próprios. A pasta lógica de
+cada recebido (inbox/spam/trash/archive), lido e estrela vivem no
+`meta/<id>.json`; enviados em `sent/` (folder sent|trash); rascunhos em
+`drafts/`; contatos (autocomplete do "Para", alimentado pelos envios) em
+`contacts.json`.
+
+**Segurança**: sessões HMAC 30d, senhas scrypt, rate-limit de login/registro
+(5 falhas → 15 min de bloqueio, por chave), delay em falhas de autenticação,
+headers de segurança na API (HSTS, nosniff, no-store) e no CloudFront
+(response headers policy gerenciada `Managed-SecurityHeadersPolicy`: HSTS,
+X-Frame-Options, nosniff, Referrer-Policy). CORS restrito a canys.com.br.
+HTML de e-mails recebidos renderiza em iframe `sandbox` (sem scripts).
+
+**Autenticação**: usuários com e-mail + senha (hash scrypt em
+`users/<local>.json` no bucket de e-mails). Criar usuário exige o **token de
+administração** (arquivo local `.mail-token`, não versionado — é a env
+`AUTH_TOKEN` da Lambda); o login é normal, com sessões HMAC de 30 dias. O
+token de administração também é aceito direto no header `x-auth-token` para
+scripts/testes. A caixa é **compartilhada** (todos os usuários veem os
+e-mails do domínio) e o remetente padrão é o endereço do usuário logado.
+
+```
+remetente ──> MX ──> SES (recebimento) ──> S3 (canys-mail-b44af36c, inbox/)
+                                                     ▲
+webmail /mail ──> Lambda canys-mail-api (Function URL) ──> SES (envio) ──> destinatário
+```
+
+| Recurso | Identificador |
+|---|---|
+| SES — Identidade (domínio, DKIM ok) | `canys.com.br` |
+| SES — Rule set ativo (catch-all → S3) | `canys-mail` / regra `store-to-s3` |
+| S3 — Bucket de e-mails (privado) | `canys-mail-b44af36c` (`inbox/`, `meta/`, `sent/`) |
+| Lambda — API do webmail | `canys-mail-api` (Node 22, código em `backend/mail-api/`) |
+| Lambda — Function URL | `https://cifa2mslqpuviladjlqh4g7muy0xqztz.lambda-url.us-east-1.on.aws` |
+| IAM — Role da Lambda | `canys-mail-api` |
+| DNS (Route 53) | 3 CNAMEs DKIM, MX `inbound-smtp.us-east-1.amazonaws.com`, TXT `_dmarc` |
+
+- **Endereços**: catch-all — qualquer coisa `@canys.com.br` é recebida; o
+  webmail envia por padrão como `contato@canys.com.br` (local-part editável).
+- **Sandbox SES**: acesso de produção solicitado em 2026-07-10 (aprovação ~24h).
+  Até lá, só é possível **enviar** para endereços verificados no SES;
+  **receber** funciona normalmente.
+- **Atualizar a API**: editar `backend/mail-api/index.mjs`, `npm install` na
+  pasta, zipar (`index.mjs` + `package.json` + `node_modules`) e
+  `aws lambda update-function-code --function-name canys-mail-api --zip-file fileb://<zip>`.
+- **Nota (out/2025)**: Function URLs públicas exigem **duas** permissões na
+  resource policy: `lambda:InvokeFunctionUrl` **e** `lambda:InvokeFunction`.
+- A função CloudFront `canys-www-redirect` (código em
+  `infra/cloudfront-function.js`) também reescreve URLs de diretório
+  (`/mail` → `/mail/index.html`).
+
 ## Custo estimado
 
 Tráfego baixo: ~US$ 0,50–1,00/mês (Route 53 hosted zone US$ 0,50 + S3/CloudFront

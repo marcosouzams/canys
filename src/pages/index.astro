@@ -12,7 +12,13 @@ import '@fontsource/monofett';
   </head>
   <body>
     <main>
-      <h1>canys</h1>
+      <h1
+        ><span style="animation-delay: 0ms">c</span><span
+          style="animation-delay: 90ms">a</span
+        ><span style="animation-delay: 180ms">n</span><span
+          style="animation-delay: 270ms">y</span
+        ><span style="animation-delay: 360ms">s</span></h1
+      >
     </main>
   </body>
 </html>
@@ -44,5 +50,31 @@ import '@fontsource/monofett';
     line-height: 1;
     letter-spacing: 0.04em;
     user-select: none;
+  }
+
+  h1 span {
+    display: inline-block;
+    opacity: 0;
+    animation: letter-in 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @keyframes letter-in {
+    0% {
+      opacity: 0;
+      transform: scale(3);
+      filter: blur(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+      filter: blur(0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    h1 span {
+      animation: none;
+      opacity: 1;
+    }
   }
 </style>

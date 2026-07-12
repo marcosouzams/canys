@@ -1,0 +1,1704 @@
+---
+import '@fontsource/monofett';
+---
+
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>canys — mail</title>
+  </head>
+  <body>
+    <!-- ===== Login / Registro ===== -->
+    <div id="auth" class="auth hidden">
+      <div class="auth-card">
+        <div class="auth-logo">canys</div>
+        <h1 id="auth-title">Entrar</h1>
+        <p class="auth-sub" id="auth-sub">use sua conta @canys.com.br</p>
+
+        <div id="auth-fields">
+          <div class="field">
+            <input id="a-email" type="text" placeholder=" " autocomplete="username" />
+            <label for="a-email">E-mail</label>
+          </div>
+          <div class="field">
+            <input id="a-pass" type="password" placeholder=" " autocomplete="current-password" />
+            <label for="a-pass">Senha</label>
+          </div>
+          <div class="field hidden" id="f-pass2">
+            <input id="a-pass2" type="password" placeholder=" " autocomplete="new-password" />
+            <label for="a-pass2">Confirmar senha</label>
+          </div>
+          <div class="field hidden" id="f-token">
+            <input id="a-token" type="password" placeholder=" " />
+            <label for="a-token">Token de administração</label>
+          </div>
+        </div>
+
+        <p id="auth-error" class="auth-error"></p>
+
+        <div class="auth-actions">
+          <button id="auth-switch" class="btn-text"></button>
+          <button id="auth-submit" class="btn-primary">Entrar</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== App ===== -->
+    <div id="app" class="app hidden">
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-logo">canys</span>
+          <span class="brand-mail">mail</span>
+        </div>
+        <div class="search">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M15.5 14h-.79l-.28-.27a6.5 6.5 0 1 0-.7.7l.27.28v.79l5 4.99L20.49 19zm-6 0A4.5 4.5 0 1 1 14 9.5 4.5 4.5 0 0 1 9.5 14"/></svg>
+          <input id="search" type="text" placeholder="Pesquisar e-mails" />
+        </div>
+        <div class="account">
+          <span id="me-email" class="me-email"></span>
+          <div id="me-avatar" class="avatar avatar-me" title="Conta"></div>
+          <div id="account-menu" class="menu account-menu hidden">
+            <div class="menu-header">
+              <div id="am-avatar" class="avatar avatar-lg"></div>
+              <div class="menu-id">
+                <strong id="am-name"></strong>
+                <span id="am-email"></span>
+              </div>
+            </div>
+            <button id="am-profile" class="menu-item">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 12a5 5 0 1 0-5-5 5 5 0 0 0 5 5m0 2c-3.34 0-10 1.67-10 5v3h20v-3c0-3.33-6.66-5-10-5"/></svg>
+              Editar perfil
+            </button>
+            <button id="am-logout" class="menu-item">
+              <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h8v-2H4z"/></svg>
+              Sair
+            </button>
+          </div>
+        </div>
+      </header>
+      <div id="progress" class="progress hidden"><div></div></div>
+
+      <div class="shell">
+        <aside class="side">
+          <button id="btn-compose" class="compose-btn">
+            <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75z"/></svg>
+            <span>Escrever</span>
+          </button>
+          <nav id="folders"></nav>
+        </aside>
+
+        <main class="main">
+          <!-- Lista -->
+          <section id="list-view">
+            <div class="list-toolbar" id="toolbar-normal">
+              <label class="cb-wrap" title="Selecionar tudo">
+                <input type="checkbox" id="cb-all" />
+              </label>
+              <button id="btn-refresh" class="icon-btn" title="Atualizar">
+                <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M17.65 6.35A8 8 0 1 0 19.73 14h-2.08a6 6 0 1 1-1.41-6.24L13 11h7V4z"/></svg>
+              </button>
+              <button id="btn-empty-trash" class="btn-text danger hidden">Esvaziar lixeira</button>
+              <button id="btn-empty-spam" class="btn-text danger hidden">Excluir todos os spams</button>
+              <span id="list-count" class="list-count"></span>
+            </div>
+            <div class="list-toolbar hidden" id="toolbar-select">
+              <label class="cb-wrap">
+                <input type="checkbox" id="cb-all2" checked />
+              </label>
+              <span id="sel-count" class="sel-count"></span>
+              <span id="sel-actions" class="sel-actions"></span>
+            </div>
+            <div id="list"></div>
+            <div id="list-empty" class="list-empty hidden">Nada por aqui</div>
+            <div id="list-loading" class="list-empty">Carregando…</div>
+          </section>
+
+          <!-- Leitura -->
+          <section id="read-view" class="hidden">
+            <div class="read-toolbar">
+              <button id="btn-back" class="icon-btn" title="Voltar">
+                <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20z"/></svg>
+              </button>
+              <span id="read-actions" class="read-actions"></span>
+            </div>
+            <div class="read-body">
+              <div id="read-skel" class="hidden">
+                <div class="skel" style="height: 26px; width: 55%; margin-bottom: 1.2rem;"></div>
+                <div style="display: flex; gap: 0.8rem; margin-bottom: 1.4rem; align-items: center;">
+                  <div class="skel" style="width: 40px; height: 40px; border-radius: 50%;"></div>
+                  <div style="flex: 1;">
+                    <div class="skel" style="height: 14px; width: 35%; margin-bottom: 6px;"></div>
+                    <div class="skel" style="height: 12px; width: 25%;"></div>
+                  </div>
+                </div>
+                <div class="skel" style="height: 13px; width: 95%; margin-bottom: 8px;"></div>
+                <div class="skel" style="height: 13px; width: 88%; margin-bottom: 8px;"></div>
+                <div class="skel" style="height: 13px; width: 92%; margin-bottom: 8px;"></div>
+                <div class="skel" style="height: 13px; width: 60%;"></div>
+              </div>
+              <div id="read-content">
+              <div class="read-subject-row">
+                <h2 id="v-subject"></h2>
+                <button id="v-star" class="icon-btn star-btn" title="Com estrela"></button>
+              </div>
+              <div class="read-head">
+                <div id="v-avatar" class="avatar"></div>
+                <div class="read-meta">
+                  <div class="read-from-row">
+                    <span id="v-from" class="read-from"></span>
+                    <span id="v-date" class="read-date"></span>
+                  </div>
+                  <div id="v-to" class="read-to"></div>
+                </div>
+                <button id="btn-reply-top" class="icon-btn" title="Responder">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11"/></svg>
+                </button>
+              </div>
+              <div id="v-attachments" class="attachments"></div>
+              <iframe id="v-html" class="hidden" sandbox="allow-popups allow-popups-to-escape-sandbox" title="conteúdo do e-mail"></iframe>
+              <pre id="v-text" class="hidden"></pre>
+              <button id="btn-reply" class="btn-outline">
+                <svg viewBox="0 0 24 24" width="16" height="16"><path fill="currentColor" d="M10 9V5l-7 7 7 7v-4.1c5 0 8.5 1.6 11 5.1-1-5-4-10-11-11"/></svg>
+                Responder
+              </button>
+              </div>
+            </div>
+          </section>
+        </main>
+      </div>
+    </div>
+
+    <!-- ===== Composer ===== -->
+    <div id="composer" class="composer hidden">
+      <div class="composer-head">
+        <span id="composer-title">Nova mensagem</span>
+        <button id="compose-close" title="Fechar (salva rascunho)">✕</button>
+      </div>
+      <div class="composer-row">
+        <span class="row-label">De</span>
+        <input id="c-from" class="c-from" type="text" spellcheck="false" />
+        <span class="from-domain">@canys.com.br</span>
+      </div>
+      <div class="composer-row to-row">
+        <span class="row-label">Para</span>
+        <input id="c-to" type="text" autocomplete="off" placeholder="destinatario@exemplo.com" />
+        <div id="to-suggest" class="menu to-suggest hidden"></div>
+      </div>
+      <div class="composer-row subject-row">
+        <span class="row-label">Assunto</span>
+        <input id="c-subject" type="text" placeholder="Sobre o que é este e-mail?" />
+      </div>
+      <div class="editor-label">Mensagem</div>
+      <div id="editor" class="editor"></div>
+      <div id="c-attachments" class="c-attachments"></div>
+      <div class="composer-foot">
+        <button id="c-send" class="btn-primary">Enviar</button>
+        <div class="toolbar">
+          <button data-cmd="bold" title="Negrito"><b>B</b></button>
+          <button data-cmd="italic" title="Itálico"><i>I</i></button>
+          <button data-cmd="underline" title="Sublinhado"><u>U</u></button>
+          <button data-cmd="strike" title="Tachado"><s>S</s></button>
+          <button data-cmd="bulletList" title="Lista">•≡</button>
+          <button data-cmd="orderedList" title="Lista numerada">1≡</button>
+          <button data-cmd="blockquote" title="Citação">❝</button>
+          <button data-cmd="link" title="Link">🔗</button>
+          <button id="c-image" title="Inserir imagem">🖼</button>
+          <button id="c-attach" title="Anexar arquivo">📎</button>
+        </div>
+        <button id="c-discard" class="icon-btn" title="Descartar rascunho">
+          <svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/></svg>
+        </button>
+        <span id="c-status" class="c-status"></span>
+        <input id="file-image" type="file" accept="image/*" class="hidden" />
+        <input id="file-attach" type="file" multiple class="hidden" />
+      </div>
+    </div>
+
+    <!-- ===== Modal ===== -->
+    <div id="modal" class="modal-overlay hidden">
+      <div class="modal">
+        <h3 id="modal-title"></h3>
+        <p id="modal-msg"></p>
+        <input id="modal-input" type="text" class="hidden" />
+        <div class="modal-actions">
+          <button id="modal-cancel" class="btn-text">Cancelar</button>
+          <button id="modal-ok" class="btn-primary">OK</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== Snackbar ===== -->
+    <div id="snackbar" class="snackbar hidden">
+      <span id="snack-msg"></span>
+      <button id="snack-action" class="hidden"></button>
+      <button id="snack-close">✕</button>
+    </div>
+
+    <!-- ===== Menu de contexto (clique direito) ===== -->
+    <div id="ctx" class="menu ctx hidden"></div>
+
+    <!-- ===== Perfil ===== -->
+    <div id="profile-overlay" class="modal-overlay hidden">
+      <div class="modal">
+        <h3>Editar perfil</h3>
+        <div class="profile-avatar-row">
+          <div id="p-avatar" class="avatar avatar-xl"></div>
+          <div class="profile-avatar-btns">
+            <button id="p-avatar-pick" class="btn-text">Alterar foto</button>
+            <button id="p-avatar-remove" class="btn-text danger">Remover</button>
+          </div>
+        </div>
+        <div class="field">
+          <input id="p-name" type="text" placeholder=" " maxlength="60" />
+          <label for="p-name">Nome de exibição</label>
+        </div>
+        <p class="profile-hint">O nome aparece no "De:" dos e-mails que você envia.</p>
+        <details class="profile-pass">
+          <summary>Alterar senha</summary>
+          <div class="field">
+            <input id="p-pass-cur" type="password" placeholder=" " autocomplete="current-password" />
+            <label for="p-pass-cur">Senha atual</label>
+          </div>
+          <div class="field">
+            <input id="p-pass-new" type="password" placeholder=" " autocomplete="new-password" />
+            <label for="p-pass-new">Nova senha (mín. 8)</label>
+          </div>
+        </details>
+        <p id="p-error" class="auth-error"></p>
+        <div class="modal-actions">
+          <button id="p-cancel" class="btn-text">Cancelar</button>
+          <button id="p-save" class="btn-primary">Salvar</button>
+        </div>
+        <input id="file-avatar" type="file" accept="image/*" class="hidden" />
+      </div>
+    </div>
+
+    <script>
+      import { Editor } from '@tiptap/core';
+      import StarterKit from '@tiptap/starter-kit';
+      import ImageExt from '@tiptap/extension-image';
+
+      const API = 'https://cifa2mslqpuviladjlqh4g7muy0xqztz.lambda-url.us-east-1.on.aws';
+      const S_TOKEN = 'canys_session';
+      const S_EMAIL = 'canys_email';
+
+      const $ = (id: string) => document.getElementById(id)!;
+      const show = (id: string) => $(id).classList.remove('hidden');
+      const hide = (id: string) => $(id).classList.add('hidden');
+
+      // ---------- ícones ----------
+      const I = {
+        inbox: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M19 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2m0 12h-4a3 3 0 0 1-6 0H5V5h14z"/></svg>',
+        star: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="m12 17.27 6.18 3.73-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>',
+        starO: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="m22 9.24-7.19-.62L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21 12 17.27 18.18 21l-1.63-7.03zM12 15.4l-3.76 2.27 1-4.28-3.32-2.88 4.38-.38L12 6.1l1.71 4.04 4.38.38-3.32 2.88 1 4.28z"/></svg>',
+        draft: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zm4 18H6V4h7v5h5z"/></svg>',
+        sent: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M2.01 21 23 12 2.01 3 2 10l15 2-15 2z"/></svg>',
+        spam: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M12 2 1 21h22zm1 15h-2v-2h2zm0-4h-2V9h2z"/></svg>',
+        trash: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6zM19 4h-3.5l-1-1h-5l-1 1H5v2h14z"/></svg>',
+        archive: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20.54 5.23 19.15 3.55A1.9 1.9 0 0 0 17.7 3H6.3c-.58 0-1.1.2-1.46.55L3.46 5.23C3.17 5.57 3 6.02 3 6.5V19a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6.5c0-.48-.17-.93-.46-1.27M12 17.5 6.5 12H10v-2h4v2h3.5zM5.12 5l.81-1h12l.94 1z"/></svg>',
+        unread: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2m0 4-8 5-8-5V6l8 5 8-5z"/></svg>',
+        read: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M21.99 8c0-.72-.37-1.35-.94-1.7L12 1 2.95 6.3C2.38 6.65 2 7.28 2 8v10a2 2 0 0 0 2 2h16c1.1 0 2-.9 2-2zM12 13 3.74 7.84 12 3l8.26 4.84z"/></svg>',
+        restore: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M13 3a9 9 0 0 0-9 9H1l3.89 3.89.07.14L9 12H6a7 7 0 1 1 7 7 6.95 6.95 0 0 1-4.9-2.03l-1.42 1.42A8.95 8.95 0 0 0 13 21a9 9 0 0 0 0-18"/></svg>',
+        notspam: '<svg viewBox="0 0 24 24" width="18" height="18"><path fill="currentColor" d="M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>',
+      };
+
+      // ---------- pastas ----------
+      const FOLDERS = [
+        { id: 'inbox', name: 'Caixa de entrada', icon: I.inbox },
+        { id: 'starred', name: 'Com estrela', icon: I.starO },
+        { id: 'drafts', name: 'Rascunhos', icon: I.draft },
+        { id: 'sent', name: 'Enviados', icon: I.sent },
+        { id: 'spam', name: 'Spam', icon: I.spam },
+        { id: 'trash', name: 'Lixeira', icon: I.trash },
+        { id: 'archive', name: 'Arquivo', icon: I.archive },
+      ];
+
+      let currentFolder = 'inbox';
+      let currentKey: string | null = null;
+      let currentMail: any = null;
+      let listCache: any[] = [];
+      let counts: any = {};
+      let selection = new Set<string>();
+      let attachFiles: { filename: string; mimeType: string; contentBase64: string }[] = [];
+      let editor: Editor | null = null;
+      let draftKey: string | null = null;
+
+      const token = () => localStorage.getItem(S_TOKEN) || '';
+      const myEmail = () => localStorage.getItem(S_EMAIL) || '';
+
+      // barra de progresso global: aparece enquanto houver requisição em voo
+      let inflight = 0;
+      const trackStart = () => {
+        inflight++;
+        $('progress')?.classList.remove('hidden');
+      };
+      const trackEnd = () => {
+        inflight = Math.max(0, inflight - 1);
+        if (!inflight) $('progress')?.classList.add('hidden');
+      };
+
+      async function api(path: string, opts: RequestInit = {}) {
+        trackStart();
+        try {
+          const res = await fetch(API + path, {
+            ...opts,
+            headers: {
+              'x-auth-token': token(),
+              ...(opts.body ? { 'content-type': 'application/json' } : {}),
+            },
+          });
+          const data = await res.json().catch(() => ({}));
+          if (res.status === 401) throw Object.assign(new Error('unauthorized'), { data });
+          if (!res.ok) throw Object.assign(new Error(data.error || 'erro ' + res.status), { data });
+          return data;
+        } finally {
+          trackEnd();
+        }
+      }
+
+      // spinner em botões
+      function setBusy(btn: HTMLButtonElement, busy: boolean) {
+        btn.classList.toggle('btn-loading', busy);
+        btn.disabled = busy;
+      }
+
+      // skeleton (ghost loading) da lista
+      function renderListSkeleton(rows = 7) {
+        const list = $('list');
+        list.innerHTML = '';
+        for (let i = 0; i < rows; i++) {
+          const el = document.createElement('div');
+          el.className = 'skel-row';
+          el.innerHTML =
+            `<div class="skel" style="width:32px;height:32px;border-radius:50%;flex-shrink:0"></div>` +
+            `<div class="skel" style="width:${120 + (i % 3) * 25}px;height:13px;flex-shrink:0"></div>` +
+            `<div class="skel" style="flex:1;height:13px;max-width:${55 + (i % 4) * 10}%"></div>` +
+            `<div class="skel" style="width:48px;height:11px;flex-shrink:0"></div>`;
+          list.appendChild(el);
+        }
+      }
+      const batch = (keys: string[], action: string, folder?: string) =>
+        api('/batch', { method: 'POST', body: JSON.stringify({ keys, action, folder }) });
+
+      // ---------- modal ----------
+      let modalResolve: ((v: any) => void) | null = null;
+
+      function confirmModal(title: string, msg: string, okText = 'OK', danger = false): Promise<boolean> {
+        ($('modal-title') as HTMLElement).textContent = title;
+        ($('modal-msg') as HTMLElement).textContent = msg;
+        hide('modal-input');
+        const ok = $('modal-ok') as HTMLButtonElement;
+        ok.textContent = okText;
+        ok.classList.toggle('btn-danger', danger);
+        show('modal');
+        ok.focus();
+        return new Promise((res) => (modalResolve = res));
+      }
+      function promptModal(title: string, msg: string, okText = 'OK'): Promise<string | null> {
+        ($('modal-title') as HTMLElement).textContent = title;
+        ($('modal-msg') as HTMLElement).textContent = msg;
+        const input = $('modal-input') as HTMLInputElement;
+        input.value = '';
+        show('modal-input');
+        ($('modal-ok') as HTMLButtonElement).textContent = okText;
+        $('modal-ok').classList.remove('btn-danger');
+        show('modal');
+        input.focus();
+        return new Promise((res) => (modalResolve = res));
+      }
+      const closeModal = (value: any) => {
+        hide('modal');
+        const r = modalResolve;
+        modalResolve = null;
+        r?.(value);
+      };
+      $('modal-ok').addEventListener('click', () => {
+        const input = $('modal-input') as HTMLInputElement;
+        closeModal(input.classList.contains('hidden') ? true : input.value || null);
+      });
+      $('modal-cancel').addEventListener('click', () =>
+        closeModal(($('modal-input') as HTMLInputElement).classList.contains('hidden') ? false : null)
+      );
+      $('modal').addEventListener('click', (e) => {
+        if (e.target === $('modal')) $('modal-cancel').click();
+      });
+      ($('modal-input') as HTMLInputElement).addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') $('modal-ok').click();
+      });
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !$('modal').classList.contains('hidden')) $('modal-cancel').click();
+      });
+
+      // ---------- snackbar ----------
+      let snackTimer: any = null;
+      function snackbar(msg: string, actionText?: string, onAction?: () => void, ms = 6000) {
+        ($('snack-msg') as HTMLElement).textContent = msg;
+        const act = $('snack-action') as HTMLButtonElement;
+        act.onclick = null;
+        if (actionText && onAction) {
+          act.textContent = actionText;
+          act.onclick = () => {
+            hideSnack();
+            onAction();
+          };
+          show('snack-action');
+        } else hide('snack-action');
+        show('snackbar');
+        clearTimeout(snackTimer);
+        snackTimer = setTimeout(hideSnack, ms);
+      }
+      const hideSnack = () => {
+        clearTimeout(snackTimer);
+        hide('snackbar');
+      };
+      $('snack-close').addEventListener('click', hideSnack);
+
+      // ---------- helpers visuais ----------
+      const avatarColor = (s: string) => {
+        let h = 0;
+        for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360;
+        return `hsl(${h}, 45%, 45%)`;
+      };
+      const senderName = (from: string) => {
+        const m = (from || '').match(/^"?([^"<]+)"?\s*</);
+        return (m ? m[1] : (from || '?').split('@')[0] || '?').trim();
+      };
+      const senderAddr = (from: string) => {
+        const m = (from || '').match(/<([^>]+)>/);
+        return m ? m[1] : (from || '').trim();
+      };
+      const setAvatar = (el: HTMLElement, from: string) => {
+        const name = senderName(from);
+        el.textContent = (name[0] || '?').toUpperCase();
+        el.style.background = avatarColor(senderAddr(from));
+      };
+      const fmtDate = (iso: string) => {
+        if (!iso) return '';
+        const d = new Date(iso);
+        const now = new Date();
+        if (d.toDateString() === now.toDateString())
+          return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        if (d.getFullYear() === now.getFullYear())
+          return d.toLocaleDateString('pt-BR', { day: 'numeric', month: 'short' });
+        return d.toLocaleDateString('pt-BR');
+      };
+      const fmtDateFull = (iso: string) =>
+        new Date(iso).toLocaleString('pt-BR', {
+          day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit',
+        });
+      const fmtSize = (n: number) =>
+        n > 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB';
+
+      // ---------- auth ----------
+      let registerMode = false;
+
+      function renderAuthMode() {
+        ($('auth-title') as HTMLElement).textContent = registerMode ? 'Criar usuário' : 'Entrar';
+        ($('auth-sub') as HTMLElement).textContent = registerMode
+          ? 'é preciso o token de administração'
+          : 'use sua conta @canys.com.br';
+        ($('auth-submit') as HTMLElement).textContent = registerMode ? 'Criar' : 'Entrar';
+        ($('auth-switch') as HTMLElement).textContent = registerMode ? 'Já tenho conta' : 'Criar usuário';
+        $('f-pass2').classList.toggle('hidden', !registerMode);
+        $('f-token').classList.toggle('hidden', !registerMode);
+        ($('auth-error') as HTMLElement).textContent = '';
+      }
+      function showAuth() {
+        hide('app');
+        show('auth');
+        registerMode = false;
+        renderAuthMode();
+      }
+      async function enterApp() {
+        hide('auth');
+        show('app');
+        const email = myEmail();
+        ($('me-email') as HTMLElement).textContent = email;
+        setAvatar($('me-avatar'), email);
+        api('/profile')
+          .then((p) => {
+            profile = p;
+            renderMe();
+          })
+          .catch(() => {});
+        refreshContacts();
+        loadList('inbox');
+      }
+      $('auth-switch').addEventListener('click', () => {
+        registerMode = !registerMode;
+        renderAuthMode();
+      });
+      $('auth-submit').addEventListener('click', async () => {
+        const email = ($('a-email') as HTMLInputElement).value.trim();
+        const password = ($('a-pass') as HTMLInputElement).value;
+        const err = $('auth-error') as HTMLElement;
+        err.textContent = '';
+        setBusy($('auth-submit') as HTMLButtonElement, true);
+        try {
+          let r;
+          if (registerMode) {
+            const pass2 = ($('a-pass2') as HTMLInputElement).value;
+            const adminToken = ($('a-token') as HTMLInputElement).value.trim();
+            if (password !== pass2) { err.textContent = 'as senhas não conferem'; return; }
+            r = await api('/auth/register', {
+              method: 'POST',
+              body: JSON.stringify({ email, password, adminToken }),
+            });
+          } else {
+            r = await api('/auth/login', {
+              method: 'POST',
+              body: JSON.stringify({ email, password }),
+            });
+          }
+          localStorage.setItem(S_TOKEN, r.token);
+          localStorage.setItem(S_EMAIL, r.email);
+          enterApp();
+        } catch (e: any) {
+          err.textContent = e.data?.error || 'erro ao conectar';
+        } finally {
+          setBusy($('auth-submit') as HTMLButtonElement, false);
+        }
+      });
+      ['a-email', 'a-pass', 'a-pass2', 'a-token'].forEach((id) =>
+        $(id).addEventListener('keydown', (e) => {
+          if ((e as KeyboardEvent).key === 'Enter') $('auth-submit').click();
+        })
+      );
+      // ---------- perfil / menu da conta ----------
+      let profile: any = { displayName: '', avatar: null };
+
+      function paintAvatar(el: HTMLElement, fallbackFrom: string, avatarUrl?: string | null) {
+        if (avatarUrl) {
+          el.innerHTML = `<img class="avatar-img" alt="">`;
+          (el.querySelector('img') as HTMLImageElement).src = avatarUrl;
+          el.style.background = 'transparent';
+        } else {
+          el.innerHTML = '';
+          setAvatar(el, fallbackFrom);
+        }
+      }
+      function renderMe() {
+        const email = myEmail();
+        paintAvatar($('me-avatar'), email, profile.avatar);
+        paintAvatar($('am-avatar'), email, profile.avatar);
+        ($('am-name') as HTMLElement).textContent = profile.displayName || email.split('@')[0];
+        ($('am-email') as HTMLElement).textContent = email;
+      }
+
+      $('me-avatar').addEventListener('click', (e) => {
+        e.stopPropagation();
+        $('account-menu').classList.toggle('hidden');
+      });
+      document.addEventListener('click', (e) => {
+        if (!(e.target as HTMLElement).closest('.account')) hide('account-menu');
+      });
+      $('am-logout').addEventListener('click', async () => {
+        hide('account-menu');
+        if (!(await confirmModal('Sair', 'Sair da conta ' + myEmail() + '?', 'Sair'))) return;
+        localStorage.removeItem(S_TOKEN);
+        localStorage.removeItem(S_EMAIL);
+        showAuth();
+      });
+
+      let pendingAvatar: string | null | undefined = undefined; // undefined = sem mudança
+      $('am-profile').addEventListener('click', () => {
+        hide('account-menu');
+        pendingAvatar = undefined;
+        ($('p-name') as HTMLInputElement).value = profile.displayName || '';
+        ($('p-pass-cur') as HTMLInputElement).value = '';
+        ($('p-pass-new') as HTMLInputElement).value = '';
+        ($('p-error') as HTMLElement).textContent = '';
+        paintAvatar($('p-avatar'), myEmail(), profile.avatar);
+        show('profile-overlay');
+      });
+      $('p-cancel').addEventListener('click', () => hide('profile-overlay'));
+      $('profile-overlay').addEventListener('click', (e) => {
+        if (e.target === $('profile-overlay')) hide('profile-overlay');
+      });
+
+      const resizeImage = (file: File, size = 128): Promise<string> =>
+        fileToDataUrl(file).then(
+          (dataUrl) =>
+            new Promise((res, rej) => {
+              const img = new Image();
+              img.onload = () => {
+                const c = document.createElement('canvas');
+                c.width = c.height = size;
+                const g = c.getContext('2d')!;
+                const m = Math.min(img.width, img.height);
+                g.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, size, size);
+                res(c.toDataURL('image/jpeg', 0.85));
+              };
+              img.onerror = rej;
+              img.src = dataUrl;
+            })
+        );
+
+      $('p-avatar-pick').addEventListener('click', () => ($('file-avatar') as HTMLInputElement).click());
+      $('file-avatar').addEventListener('change', async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+        try {
+          pendingAvatar = await resizeImage(file);
+          paintAvatar($('p-avatar'), myEmail(), pendingAvatar);
+        } catch {
+          ($('p-error') as HTMLElement).textContent = 'não foi possível ler a imagem';
+        }
+        (e.target as HTMLInputElement).value = '';
+      });
+      $('p-avatar-remove').addEventListener('click', () => {
+        pendingAvatar = null;
+        paintAvatar($('p-avatar'), myEmail(), null);
+      });
+
+      $('p-save').addEventListener('click', async () => {
+        const err = $('p-error') as HTMLElement;
+        err.textContent = '';
+        const payload: any = { displayName: ($('p-name') as HTMLInputElement).value.trim() };
+        if (pendingAvatar !== undefined) payload.avatar = pendingAvatar;
+        const passNew = ($('p-pass-new') as HTMLInputElement).value;
+        if (passNew) {
+          payload.newPassword = passNew;
+          payload.currentPassword = ($('p-pass-cur') as HTMLInputElement).value;
+        }
+        setBusy($('p-save') as HTMLButtonElement, true);
+        try {
+          const r = await api('/profile', { method: 'POST', body: JSON.stringify(payload) });
+          profile.displayName = r.displayName;
+          profile.avatar = r.avatar;
+          renderMe();
+          hide('profile-overlay');
+          snackbar('Perfil salvo');
+        } catch (e: any) {
+          err.textContent = e.data?.error || 'erro ao salvar';
+        } finally {
+          setBusy($('p-save') as HTMLButtonElement, false);
+        }
+      });
+
+      // ---------- menu de contexto ----------
+      function ctxItem(icon: string, label: string, fn: () => void, danger = false) {
+        const b = document.createElement('button');
+        b.className = 'menu-item' + (danger ? ' danger' : '');
+        b.innerHTML = icon + '<span></span>';
+        (b.querySelector('span') as HTMLElement).textContent = label;
+        b.addEventListener('click', () => {
+          hide('ctx');
+          fn();
+        });
+        return b;
+      }
+      function openCtxMenu(e: MouseEvent, item: any) {
+        const ctx = $('ctx');
+        ctx.innerHTML = '';
+        const isDraft = currentFolder === 'drafts';
+        ctx.appendChild(
+          ctxItem(I.read, isDraft ? 'Editar rascunho' : 'Abrir', () =>
+            isDraft ? openDraft(item.key) : openEmail(item.key)
+          )
+        );
+        if (item.key.startsWith('inbox/') && !['trash', 'spam'].includes(currentFolder)) {
+          ctx.appendChild(
+            ctxItem(item.starred ? I.star : I.starO, item.starred ? 'Remover estrela' : 'Adicionar estrela', async () => {
+              await batch([item.key], item.starred ? 'unstar' : 'star');
+              loadList(currentFolder, true);
+            })
+          );
+          ctx.appendChild(
+            ctxItem(item.read ? I.unread : I.read, item.read ? 'Marcar como não lida' : 'Marcar como lida', async () => {
+              await batch([item.key], item.read ? 'unread' : 'read');
+              loadList(currentFolder, true);
+            })
+          );
+        }
+        const sep = document.createElement('div');
+        sep.className = 'menu-sep';
+        ctx.appendChild(sep);
+        for (const act of actionsFor(currentFolder, [item.key])) {
+          if (act.id === 'read' || act.id === 'unread') continue;
+          ctx.appendChild(ctxItem(act.icon, act.title, () => act.run([item.key]), act.id === 'delete'));
+        }
+        show('ctx');
+        const r = ctx.getBoundingClientRect();
+        ctx.style.left = Math.min(e.clientX, window.innerWidth - r.width - 8) + 'px';
+        ctx.style.top = Math.min(e.clientY, window.innerHeight - r.height - 8) + 'px';
+      }
+      document.addEventListener('click', () => hide('ctx'));
+      document.addEventListener('scroll', () => hide('ctx'), true);
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') hide('ctx');
+      });
+      document.addEventListener('contextmenu', (e) => {
+        if (!(e.target as HTMLElement).closest('.row')) hide('ctx');
+      });
+
+      // ---------- sidebar ----------
+      function renderFolders() {
+        const nav = $('folders');
+        nav.innerHTML = '';
+        for (const f of FOLDERS) {
+          const btn = document.createElement('button');
+          btn.className = 'folder' + (f.id === currentFolder ? ' active' : '');
+          btn.innerHTML = `${f.icon}<span class="folder-name">${f.name}</span><span class="badge hidden"></span>`;
+          const badge = btn.querySelector('.badge') as HTMLElement;
+          if (f.id === 'inbox' && counts.inboxUnread > 0) {
+            badge.textContent = String(counts.inboxUnread);
+            badge.classList.remove('hidden');
+          }
+          if (f.id === 'spam' && counts.spam > 0) {
+            badge.textContent = String(counts.spam);
+            badge.classList.remove('hidden');
+            badge.classList.add('badge-muted');
+          }
+          btn.addEventListener('click', () => loadList(f.id));
+          nav.appendChild(btn);
+        }
+      }
+
+      // ---------- ações contextuais ----------
+      type Act = { id: string; icon: string; title: string; run: (keys: string[]) => Promise<void> };
+
+      const undoableMove = async (keys: string[], action: string, folder: string | undefined, msg: string) => {
+        // guarda a pasta anterior de cada item para o desfazer
+        const prev = new Map<string, string>();
+        for (const k of keys) {
+          const item = listCache.find((i) => i.key === k);
+          prev.set(k, item?.folder || (k.startsWith('sent/') ? 'sent' : 'inbox'));
+        }
+        await batch(keys, action, folder);
+        await loadList(currentFolder, true);
+        snackbar(msg, 'Desfazer', async () => {
+          const groups = new Map<string, string[]>();
+          for (const [k, f] of prev) {
+            if (!groups.has(f)) groups.set(f, []);
+            groups.get(f)!.push(k);
+          }
+          for (const [f, ks] of groups) await batch(ks, 'move', f);
+          loadList(currentFolder, true);
+        });
+      };
+
+      function actionsFor(folder: string, keys: string[]): Act[] {
+        const n = keys.length;
+        const plural = n > 1 ? `${n} conversas` : 'conversa';
+        const acts: Act[] = [];
+        const add = (id: string, icon: string, title: string, run: Act['run']) =>
+          acts.push({ id, icon, title, run });
+
+        if (folder === 'drafts') {
+          add('delete', I.trash, 'Descartar rascunho', async (ks) => {
+            if (!(await confirmModal('Descartar', `Descartar ${plural}? Essa ação não pode ser desfeita.`, 'Descartar', true))) return;
+            await batch(ks, 'delete');
+            loadList(currentFolder, true);
+            snackbar('Rascunho descartado');
+          });
+          return acts;
+        }
+        if (folder === 'trash') {
+          add('restore', I.restore, 'Restaurar', async (ks) => {
+            const inboxKs = ks.filter((k) => k.startsWith('inbox/'));
+            const sentKs = ks.filter((k) => k.startsWith('sent/'));
+            if (inboxKs.length) await batch(inboxKs, 'move', 'inbox');
+            if (sentKs.length) await batch(sentKs, 'move', 'sent');
+            loadList(currentFolder, true);
+            snackbar('Restaurado');
+          });
+          add('delete', I.trash, 'Excluir definitivamente', async (ks) => {
+            if (!(await confirmModal('Excluir definitivamente', `Excluir ${plural} para sempre?`, 'Excluir', true))) return;
+            await batch(ks, 'delete');
+            loadList(currentFolder, true);
+            snackbar('Excluído definitivamente');
+          });
+          return acts;
+        }
+        if (folder === 'spam') {
+          add('notspam', I.notspam, 'Não é spam', (ks) => undoableMove(ks, 'move', 'inbox', 'Movido para a caixa de entrada'));
+          add('delete', I.trash, 'Excluir definitivamente', async (ks) => {
+            if (!(await confirmModal('Excluir definitivamente', `Excluir ${plural} para sempre?`, 'Excluir', true))) return;
+            await batch(ks, 'delete');
+            loadList(currentFolder, true);
+            snackbar('Excluído definitivamente');
+          });
+          return acts;
+        }
+        if (folder === 'sent') {
+          add('trash', I.trash, 'Mover para a lixeira', (ks) => undoableMove(ks, 'trash', undefined, 'Movido para a lixeira'));
+          return acts;
+        }
+        // inbox / starred / archive
+        if (folder === 'archive') {
+          add('toinbox', I.inbox, 'Mover para a caixa de entrada', (ks) => undoableMove(ks, 'move', 'inbox', 'Movido para a caixa de entrada'));
+        } else {
+          add('archive', I.archive, 'Arquivar', (ks) => undoableMove(ks, 'move', 'archive', 'Arquivado'));
+        }
+        add('spam', I.spam, 'Marcar como spam', (ks) => undoableMove(ks, 'move', 'spam', 'Marcado como spam'));
+        add('trash', I.trash, 'Mover para a lixeira', (ks) => undoableMove(ks, 'trash', undefined, 'Movido para a lixeira'));
+        add('read', I.read, 'Marcar como lida', async (ks) => {
+          await batch(ks, 'read');
+          loadList(currentFolder, true);
+        });
+        add('unread', I.unread, 'Marcar como não lida', async (ks) => {
+          await batch(ks, 'unread');
+          loadList(currentFolder, true);
+        });
+        return acts;
+      }
+
+      // ---------- seleção ----------
+      function updateSelectionUI() {
+        const any = selection.size > 0;
+        $('toolbar-normal').classList.toggle('hidden', any);
+        $('toolbar-select').classList.toggle('hidden', !any);
+        if (any) {
+          ($('sel-count') as HTMLElement).textContent = `${selection.size} selecionada${selection.size > 1 ? 's' : ''}`;
+          const box = $('sel-actions');
+          box.innerHTML = '';
+          for (const act of actionsFor(currentFolder, [...selection])) {
+            const b = document.createElement('button');
+            b.className = 'icon-btn';
+            b.title = act.title;
+            b.innerHTML = act.icon;
+            b.addEventListener('click', async () => {
+              const keys = [...selection];
+              clearSelection();
+              await act.run(keys);
+            });
+            box.appendChild(b);
+          }
+        }
+        document.querySelectorAll('.row').forEach((r) => {
+          const key = (r as HTMLElement).dataset.key!;
+          r.classList.toggle('selected', selection.has(key));
+          const cb = r.querySelector('input[type=checkbox]') as HTMLInputElement | null;
+          if (cb) cb.checked = selection.has(key);
+        });
+        ($('cb-all') as HTMLInputElement).checked = any && selection.size === listCache.length;
+      }
+      function clearSelection() {
+        selection.clear();
+        updateSelectionUI();
+      }
+      $('cb-all').addEventListener('change', (e) => {
+        selection = (e.target as HTMLInputElement).checked
+          ? new Set(applySearch(listCache).map((i) => i.key))
+          : new Set();
+        updateSelectionUI();
+      });
+      $('cb-all2').addEventListener('change', () => clearSelection());
+
+      // ---------- lista ----------
+      function renderList(items: any[]) {
+        const list = $('list');
+        list.innerHTML = '';
+        hide('list-empty');
+        if (!items.length) {
+          show('list-empty');
+          ($('list-count') as HTMLElement).textContent = '';
+          return;
+        }
+        ($('list-count') as HTMLElement).textContent = String(items.length);
+        for (const item of items) {
+          const el = document.createElement('div');
+          el.className = 'row' + (!item.read && currentFolder !== 'drafts' ? ' unread' : '');
+          el.dataset.key = item.key;
+          const isDraft = currentFolder === 'drafts';
+          const who = isDraft
+            ? 'Rascunho'
+            : currentFolder === 'sent' || item.origin === 'sent'
+              ? 'Para: ' + (item.to || '')
+              : senderName(item.from || '');
+          const canStar = item.key.startsWith('inbox/') && currentFolder !== 'trash' && currentFolder !== 'spam';
+
+          el.innerHTML =
+            `<label class="cb-wrap row-cb"><input type="checkbox"></label>` +
+            (canStar ? `<button class="star-btn row-star ${item.starred ? 'on' : ''}" title="Com estrela">${item.starred ? I.star : I.starO}</button>` : '') +
+            `<span class="row-avatar avatar"></span>` +
+            `<span class="row-who ${isDraft ? 'draft-label' : ''}"></span>` +
+            `<span class="row-text"><span class="row-subject"></span><span class="row-snip"></span></span>` +
+            (item.attachments ? `<span class="row-clip">📎</span>` : '') +
+            `<span class="row-date">${fmtDate(item.date)}</span>` +
+            `<span class="row-actions"></span>`;
+
+          setAvatar(
+            el.querySelector('.row-avatar') as HTMLElement,
+            currentFolder === 'sent' || item.origin === 'sent' || isDraft ? item.to || '?' : item.from || '?'
+          );
+          (el.querySelector('.row-who') as HTMLElement).textContent = who;
+          (el.querySelector('.row-subject') as HTMLElement).textContent = item.subject || '(sem assunto)';
+          (el.querySelector('.row-snip') as HTMLElement).textContent = item.snippet ? ' — ' + item.snippet : '';
+
+          const cb = el.querySelector('input[type=checkbox]') as HTMLInputElement;
+          cb.addEventListener('click', (e) => {
+            e.stopPropagation();
+            if (cb.checked) selection.add(item.key);
+            else selection.delete(item.key);
+            updateSelectionUI();
+          });
+
+          const starBtn = el.querySelector('.row-star') as HTMLButtonElement | null;
+          starBtn?.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const on = !item.starred;
+            item.starred = on;
+            starBtn.innerHTML = on ? I.star : I.starO;
+            starBtn.classList.toggle('on', on);
+            await batch([item.key], on ? 'star' : 'unstar');
+            if (currentFolder === 'starred' && !on) loadList('starred', true);
+          });
+
+          // ações rápidas no hover
+          const actBox = el.querySelector('.row-actions') as HTMLElement;
+          for (const act of actionsFor(currentFolder, [item.key]).slice(0, 3)) {
+            const b = document.createElement('button');
+            b.className = 'icon-btn sm';
+            b.title = act.title;
+            b.innerHTML = act.icon;
+            b.addEventListener('click', async (e) => {
+              e.stopPropagation();
+              await act.run([item.key]);
+            });
+            actBox.appendChild(b);
+          }
+
+          el.addEventListener('click', () => {
+            if (isDraft) openDraft(item.key);
+            else openEmail(item.key, el);
+          });
+          el.addEventListener('contextmenu', (e) => {
+            e.preventDefault();
+            openCtxMenu(e as MouseEvent, item);
+          });
+          list.appendChild(el);
+        }
+        updateSelectionUI();
+      }
+
+      async function loadList(folder: string, keepView = false) {
+        currentFolder = folder;
+        clearSelection();
+        renderFolders();
+        $('btn-empty-trash').classList.toggle('hidden', folder !== 'trash');
+        $('btn-empty-spam').classList.toggle('hidden', folder !== 'spam');
+        if (!keepView) backToList();
+        hide('list-empty');
+        hide('list-loading');
+        renderListSkeleton();
+        try {
+          const r = await api('/emails?folder=' + folder);
+          listCache = r.items;
+          if (r.counts) counts = r.counts;
+          renderList(applySearch(r.items));
+          renderFolders();
+          if (keepView && currentKey && !r.items.find((i: any) => i.key === currentKey)) backToList();
+        } catch (e: any) {
+          $('list').innerHTML = '';
+          if (e.message === 'unauthorized') return showAuth();
+          show('list-empty');
+          ($('list-empty') as HTMLElement).textContent = 'Erro ao carregar';
+        }
+      }
+
+      const applySearch = (items: any[]) => {
+        const q = ($('search') as HTMLInputElement).value.trim().toLowerCase();
+        if (!q) return items;
+        return items.filter((i) =>
+          [i.subject, i.from, i.to, i.snippet].join(' ').toLowerCase().includes(q)
+        );
+      };
+      $('search').addEventListener('input', () => renderList(applySearch(listCache)));
+      $('btn-refresh').addEventListener('click', () => loadList(currentFolder, true));
+
+      $('btn-empty-trash').addEventListener('click', async () => {
+        if (!listCache.length) return;
+        if (!(await confirmModal('Esvaziar lixeira', `Excluir definitivamente ${listCache.length} conversa(s)?`, 'Esvaziar', true))) return;
+        await batch(listCache.map((i) => i.key), 'delete');
+        loadList('trash', true);
+        snackbar('Lixeira esvaziada');
+      });
+      $('btn-empty-spam').addEventListener('click', async () => {
+        if (!listCache.length) return;
+        if (!(await confirmModal('Excluir spam', `Excluir definitivamente ${listCache.length} spam(s)?`, 'Excluir', true))) return;
+        await batch(listCache.map((i) => i.key), 'delete');
+        loadList('spam', true);
+        snackbar('Spam excluído');
+      });
+
+      // ---------- leitura ----------
+      function backToList() {
+        hide('read-view');
+        show('list-view');
+        currentKey = null;
+        currentMail = null;
+      }
+      $('btn-back').addEventListener('click', backToList);
+
+      function renderReadActions() {
+        const box = $('read-actions');
+        box.innerHTML = '';
+        if (!currentKey) return;
+        for (const act of actionsFor(currentFolder, [currentKey])) {
+          if (act.id === 'read') continue;
+          const b = document.createElement('button');
+          b.className = 'icon-btn';
+          b.title = act.title;
+          b.innerHTML = act.icon;
+          b.addEventListener('click', async () => {
+            const key = currentKey!;
+            if (act.id === 'unread') {
+              await batch([key], 'unread');
+              backToList();
+              loadList(currentFolder, true);
+              return;
+            }
+            await act.run([key]);
+            backToList();
+          });
+          box.appendChild(b);
+        }
+      }
+
+      function renderReadStar() {
+        const btn = $('v-star') as HTMLButtonElement;
+        if (!currentKey?.startsWith('inbox/')) {
+          btn.classList.add('hidden');
+          return;
+        }
+        btn.classList.remove('hidden');
+        btn.innerHTML = currentMail?.starred ? I.star : I.starO;
+        btn.classList.toggle('on', !!currentMail?.starred);
+      }
+      $('v-star').addEventListener('click', async () => {
+        if (!currentMail || !currentKey) return;
+        currentMail.starred = !currentMail.starred;
+        renderReadStar();
+        await batch([currentKey], currentMail.starred ? 'star' : 'unstar');
+        const cached = listCache.find((i) => i.key === currentKey);
+        if (cached) cached.starred = currentMail.starred;
+      });
+
+      async function openEmail(key: string, rowEl?: HTMLElement) {
+        currentKey = key;
+        hide('list-view');
+        show('read-view');
+        show('read-skel');
+        hide('read-content');
+        ($('v-subject') as HTMLElement).textContent = '';
+        ['v-from', 'v-to', 'v-date'].forEach((id) => (($(id) as HTMLElement).textContent = ''));
+        hide('v-html');
+        hide('v-text');
+        $('v-attachments').innerHTML = '';
+        renderReadActions();
+
+        try {
+          const mail = await api('/email?key=' + encodeURIComponent(key));
+          hide('read-skel');
+          show('read-content');
+          currentMail = mail;
+          ($('v-subject') as HTMLElement).textContent = mail.subject || '(sem assunto)';
+          ($('v-from') as HTMLElement).textContent = mail.from || '';
+          ($('v-to') as HTMLElement).textContent = mail.to ? 'para ' + mail.to : '';
+          ($('v-date') as HTMLElement).textContent = mail.date ? fmtDateFull(mail.date) : '';
+          setAvatar($('v-avatar'), mail.from || '?');
+          renderReadStar();
+
+          if (mail.html) {
+            const iframe = $('v-html') as HTMLIFrameElement;
+            show('v-html');
+            iframe.srcdoc =
+              '<base target="_blank"><style>body{font-family:Arial,sans-serif;color:#1f1f1f;background:#fff;margin:8px;word-break:break-word}img{max-width:100%}</style>' +
+              mail.html;
+          } else {
+            show('v-text');
+            ($('v-text') as HTMLElement).textContent = mail.text || '(vazio)';
+          }
+
+          for (const att of mail.attachments || []) {
+            const chip = document.createElement('button');
+            chip.className = 'att-chip';
+            chip.innerHTML = `<span class="att-icon">📄</span><span class="att-name"></span><span class="att-size">${fmtSize(att.size || 0)}</span>`;
+            (chip.querySelector('.att-name') as HTMLElement).textContent = att.filename;
+            chip.addEventListener('click', async () => {
+              chip.classList.add('busy');
+              try {
+                const data = await api(`/attachment?key=${encodeURIComponent(key)}&index=${att.index}`);
+                const bytes = Uint8Array.from(atob(data.contentBase64), (c) => c.charCodeAt(0));
+                const url = URL.createObjectURL(new Blob([bytes], { type: data.mimeType }));
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = data.filename;
+                a.click();
+                URL.revokeObjectURL(url);
+              } finally {
+                chip.classList.remove('busy');
+              }
+            });
+            $('v-attachments').appendChild(chip);
+          }
+
+          if (key.startsWith('inbox/')) {
+            batch([key], 'read').catch(() => {});
+            const cached = listCache.find((i) => i.key === key);
+            if (cached && !cached.read) {
+              cached.read = true;
+              counts.inboxUnread = Math.max(0, (counts.inboxUnread || 1) - 1);
+              renderFolders();
+            }
+            rowEl?.classList.remove('unread');
+          }
+        } catch {
+          hide('read-skel');
+          show('read-content');
+          ($('v-subject') as HTMLElement).textContent = 'Erro ao abrir e-mail';
+        }
+      }
+
+      const doReply = () => {
+        if (!currentMail) return;
+        resetComposer();
+        openComposer();
+        ($('c-to') as HTMLInputElement).value = senderAddr(currentMail.from || '');
+        const subj = currentMail.subject || '';
+        ($('c-subject') as HTMLInputElement).value = /^re:/i.test(subj) ? subj : 'Re: ' + subj;
+        const quoted = currentMail.html
+          ? currentMail.html
+          : `<p>${(currentMail.text || '').replace(/</g, '&lt;').replace(/\n/g, '<br>')}</p>`;
+        editor?.commands.setContent(`<p></p><blockquote>${quoted}</blockquote>`);
+        editor?.commands.focus('start');
+      };
+      $('btn-reply').addEventListener('click', doReply);
+      $('btn-reply-top').addEventListener('click', doReply);
+
+      // ---------- contatos / autocomplete ----------
+      let contacts: { email: string; name: string; count: number }[] = [];
+      let suggestIndex = -1;
+
+      const refreshContacts = () =>
+        api('/contacts')
+          .then((r) => (contacts = r.items))
+          .catch(() => {});
+
+      function currentToToken() {
+        const value = ($('c-to') as HTMLInputElement).value;
+        const parts = value.split(',');
+        return { parts, token: parts[parts.length - 1].trim().toLowerCase() };
+      }
+
+      function renderSuggest() {
+        const box = $('to-suggest');
+        const { token: tk } = currentToToken();
+        if (!tk) {
+          hide('to-suggest');
+          return;
+        }
+        const matches = contacts
+          .filter((c) => c.email.includes(tk) || (c.name || '').toLowerCase().includes(tk))
+          .slice(0, 6);
+        if (!matches.length) {
+          hide('to-suggest');
+          return;
+        }
+        box.innerHTML = '';
+        suggestIndex = Math.min(suggestIndex, matches.length - 1);
+        matches.forEach((c, i) => {
+          const b = document.createElement('button');
+          b.className = 'suggest-item' + (i === suggestIndex ? ' active' : '');
+          b.innerHTML = `<span class="avatar suggest-avatar"></span><span class="suggest-mail"></span>`;
+          setAvatar(b.querySelector('.suggest-avatar') as HTMLElement, c.email);
+          (b.querySelector('.suggest-mail') as HTMLElement).textContent = c.email;
+          b.addEventListener('mousedown', (e) => {
+            e.preventDefault();
+            pickSuggest(c.email);
+          });
+          box.appendChild(b);
+        });
+        show('to-suggest');
+      }
+
+      function pickSuggest(email: string) {
+        const input = $('c-to') as HTMLInputElement;
+        const { parts } = currentToToken();
+        parts[parts.length - 1] = ' ' + email;
+        input.value = parts.join(',').replace(/^ /, '') + ', ';
+        suggestIndex = -1;
+        hide('to-suggest');
+        input.focus();
+      }
+
+      $('c-to').addEventListener('input', () => {
+        suggestIndex = -1;
+        renderSuggest();
+      });
+      $('c-to').addEventListener('blur', () => setTimeout(() => hide('to-suggest'), 150));
+      $('c-to').addEventListener('keydown', (e) => {
+        const box = $('to-suggest');
+        if (box.classList.contains('hidden')) return;
+        const items = box.querySelectorAll('.suggest-item');
+        if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+          e.preventDefault();
+          suggestIndex =
+            e.key === 'ArrowDown'
+              ? (suggestIndex + 1) % items.length
+              : (suggestIndex - 1 + items.length) % items.length;
+          items.forEach((el, i) => el.classList.toggle('active', i === suggestIndex));
+        } else if (e.key === 'Enter' && suggestIndex >= 0) {
+          e.preventDefault();
+          (items[suggestIndex].querySelector('.suggest-mail') as HTMLElement).textContent &&
+            pickSuggest((items[suggestIndex].querySelector('.suggest-mail') as HTMLElement).textContent!);
+        } else if (e.key === 'Escape') {
+          hide('to-suggest');
+        }
+      });
+
+      // ---------- composer ----------
+      function initEditor() {
+        editor = new Editor({
+          element: $('editor'),
+          extensions: [
+            StarterKit.configure({ link: { openOnClick: false } }),
+            ImageExt.configure({ allowBase64: true }),
+          ],
+          content: '',
+        });
+        editor.on('transaction', updateToolbar);
+      }
+      function updateToolbar() {
+        document.querySelectorAll('.toolbar [data-cmd]').forEach((b) => {
+          const cmd = (b as HTMLElement).dataset.cmd!;
+          b.classList.toggle('on', !!editor?.isActive(cmd === 'link' ? 'link' : cmd));
+        });
+      }
+      function composerIsEmpty() {
+        return (
+          !($('c-to') as HTMLInputElement).value.trim() &&
+          !($('c-subject') as HTMLInputElement).value.trim() &&
+          !editor?.getText().trim() &&
+          !editor?.getHTML().includes('<img') &&
+          attachFiles.length === 0
+        );
+      }
+      function openComposer() {
+        show('composer');
+        ($('c-status') as HTMLElement).textContent = '';
+        if (!($('c-from') as HTMLInputElement).value)
+          ($('c-from') as HTMLInputElement).value = myEmail().split('@')[0];
+        ($('composer-title') as HTMLElement).textContent = draftKey ? 'Rascunho' : 'Nova mensagem';
+        ($('c-to') as HTMLInputElement).focus();
+      }
+      function resetComposer() {
+        ($('c-to') as HTMLInputElement).value = '';
+        ($('c-subject') as HTMLInputElement).value = '';
+        editor?.commands.clearContent();
+        attachFiles = [];
+        draftKey = null;
+        renderAttachChips();
+      }
+      $('btn-compose').addEventListener('click', () => {
+        resetComposer();
+        openComposer();
+      });
+
+      async function saveDraft(silent = false) {
+        const payload = {
+          key: draftKey || undefined,
+          to: ($('c-to') as HTMLInputElement).value.trim(),
+          subject: ($('c-subject') as HTMLInputElement).value.trim(),
+          text: editor?.getText() || '',
+          html: editor?.getHTML() || null,
+          attachments: attachFiles,
+          fromLocal: ($('c-from') as HTMLInputElement).value.trim(),
+        };
+        const r = await api('/draft', { method: 'POST', body: JSON.stringify(payload) });
+        draftKey = r.key;
+        if (!silent) snackbar('Rascunho salvo');
+      }
+
+      $('compose-close').addEventListener('click', async () => {
+        hide('composer');
+        if (!composerIsEmpty()) {
+          try {
+            await saveDraft();
+            if (currentFolder === 'drafts') loadList('drafts', true);
+          } catch {
+            snackbar('Não foi possível salvar o rascunho');
+          }
+        }
+        resetComposer();
+      });
+
+      $('c-discard').addEventListener('click', async () => {
+        if (!composerIsEmpty() || draftKey) {
+          if (!(await confirmModal('Descartar', 'Descartar esta mensagem?', 'Descartar', true))) return;
+        }
+        if (draftKey) {
+          await batch([draftKey], 'delete').catch(() => {});
+          if (currentFolder === 'drafts') loadList('drafts', true);
+        }
+        hide('composer');
+        resetComposer();
+      });
+
+      async function openDraft(key: string) {
+        try {
+          const d = await api('/email?key=' + encodeURIComponent(key));
+          resetComposer();
+          draftKey = key;
+          ($('c-to') as HTMLInputElement).value = d.to || '';
+          ($('c-subject') as HTMLInputElement).value = d.subject || '';
+          ($('c-from') as HTMLInputElement).value = d.fromLocal || myEmail().split('@')[0];
+          if (d.html) editor?.commands.setContent(d.html);
+          else if (d.text) editor?.commands.setContent(`<p>${d.text.replace(/\n/g, '<br>')}</p>`);
+          attachFiles = d.attachments || [];
+          renderAttachChips();
+          openComposer();
+        } catch {
+          snackbar('Erro ao abrir rascunho');
+        }
+      }
+
+      document.querySelectorAll('.toolbar [data-cmd]').forEach((b) => {
+        b.addEventListener('click', async () => {
+          const cmd = (b as HTMLElement).dataset.cmd!;
+          const chain = editor!.chain().focus();
+          if (cmd === 'bold') chain.toggleBold().run();
+          else if (cmd === 'italic') chain.toggleItalic().run();
+          else if (cmd === 'underline') chain.toggleUnderline().run();
+          else if (cmd === 'strike') chain.toggleStrike().run();
+          else if (cmd === 'bulletList') chain.toggleBulletList().run();
+          else if (cmd === 'orderedList') chain.toggleOrderedList().run();
+          else if (cmd === 'blockquote') chain.toggleBlockquote().run();
+          else if (cmd === 'link') {
+            if (editor!.isActive('link')) chain.unsetLink().run();
+            else {
+              const url = await promptModal('Inserir link', 'Endereço (URL):', 'Inserir');
+              if (url) editor!.chain().focus().setLink({ href: url }).run();
+            }
+          }
+        });
+      });
+
+      const fileToDataUrl = (file: File): Promise<string> =>
+        new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res(r.result as string);
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+
+      $('c-image').addEventListener('click', () => ($('file-image') as HTMLInputElement).click());
+      $('file-image').addEventListener('change', async (e) => {
+        const file = (e.target as HTMLInputElement).files?.[0];
+        if (!file) return;
+        if (file.size > 2_000_000) return snackbar('Imagem grande demais (máx. 2 MB)');
+        const dataUrl = await fileToDataUrl(file);
+        editor!.chain().focus().setImage({ src: dataUrl }).run();
+        (e.target as HTMLInputElement).value = '';
+      });
+
+      $('c-attach').addEventListener('click', () => ($('file-attach') as HTMLInputElement).click());
+      $('file-attach').addEventListener('change', async (e) => {
+        const files = Array.from((e.target as HTMLInputElement).files || []);
+        for (const file of files) {
+          if (file.size > 3_000_000) { snackbar(`"${file.name}" é grande demais (máx. 3 MB)`); continue; }
+          const dataUrl = await fileToDataUrl(file);
+          attachFiles.push({
+            filename: file.name,
+            mimeType: file.type || 'application/octet-stream',
+            contentBase64: dataUrl.split(',')[1],
+          });
+        }
+        renderAttachChips();
+        (e.target as HTMLInputElement).value = '';
+      });
+
+      function renderAttachChips() {
+        const box = $('c-attachments');
+        box.innerHTML = '';
+        attachFiles.forEach((f, i) => {
+          const chip = document.createElement('span');
+          chip.className = 'att-chip';
+          chip.innerHTML = `<span class="att-name"></span><button class="att-x" title="Remover">✕</button>`;
+          (chip.querySelector('.att-name') as HTMLElement).textContent = f.filename;
+          chip.querySelector('.att-x')!.addEventListener('click', () => {
+            attachFiles.splice(i, 1);
+            renderAttachChips();
+          });
+          box.appendChild(chip);
+        });
+      }
+
+      $('c-send').addEventListener('click', async () => {
+        const to = ($('c-to') as HTMLInputElement).value.trim();
+        const subject = ($('c-subject') as HTMLInputElement).value.trim();
+        const html = editor!.getHTML();
+        const text = editor!.getText();
+        const fromLocal = ($('c-from') as HTMLInputElement).value.trim();
+        const status = $('c-status') as HTMLElement;
+        if (!to) { status.textContent = 'informe o destinatário'; return; }
+        if (!subject) { status.textContent = 'informe o assunto'; return; }
+        if (!text.trim() && !html.includes('<img')) { status.textContent = 'mensagem vazia'; return; }
+        setBusy($('c-send') as HTMLButtonElement, true);
+        status.textContent = '';
+        try {
+          await api('/send', {
+            method: 'POST',
+            body: JSON.stringify({ to, subject, text, html, fromLocal, attachments: attachFiles, draftKey }),
+          });
+          hide('composer');
+          resetComposer();
+          snackbar('Mensagem enviada');
+          refreshContacts();
+          if (currentFolder === 'sent' || currentFolder === 'drafts') loadList(currentFolder, true);
+        } catch (e: any) {
+          status.textContent =
+            e.data?.error?.includes('not verified') || e.data?.error?.includes('Email address')
+              ? 'destinatário não verificado (sandbox SES)'
+              : e.data?.error || 'falha ao enviar';
+        } finally {
+          setBusy($('c-send') as HTMLButtonElement, false);
+        }
+      });
+
+      // ---------- boot ----------
+      initEditor();
+      renderFolders();
+      if (token() && myEmail()) {
+        enterApp();
+      } else showAuth();
+    </script>
+  </body>
+</html>
+
+<style is:global>
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    background: #f6f8fc;
+    color: #1f1f1f;
+    font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+    font-size: 14px;
+  }
+  .hidden { display: none !important; }
+  button { font: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ===== auth ===== */
+  .auth { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 1rem; }
+  .auth-card { background: #fff; border: 1px solid #dadce0; border-radius: 16px; padding: 2.5rem 2.5rem 2rem; width: min(420px, 100%); }
+  .auth-logo { font-family: 'Monofett', monospace; font-size: 2.4rem; text-align: center; margin-bottom: 0.5rem; }
+  .auth-card h1 { font-size: 1.4rem; font-weight: 500; text-align: center; margin: 0 0 0.2rem; }
+  .auth-sub { text-align: center; color: #5e5e5e; margin: 0 0 1.6rem; font-size: 0.9rem; }
+  .field { position: relative; margin-bottom: 1rem; }
+  .field input { width: 100%; padding: 0.9rem 0.9rem 0.5rem; border: 1px solid #dadce0; border-radius: 8px; font: inherit; outline: none; background: #fff; }
+  .field input:focus { border-color: #0b57d0; box-shadow: 0 0 0 1px #0b57d0; }
+  .field label { position: absolute; left: 0.9rem; top: 0.72rem; color: #5e5e5e; pointer-events: none; transition: all 0.12s ease; background: #fff; padding: 0 0.2rem; }
+  .field input:focus + label, .field input:not(:placeholder-shown) + label { top: -0.5rem; font-size: 0.72rem; color: #0b57d0; }
+  .auth-error { color: #d93025; min-height: 1.2em; margin: 0 0 0.6rem; font-size: 0.85rem; }
+  .auth-actions { display: flex; justify-content: space-between; align-items: center; }
+  .btn-primary { background: #0b57d0; color: #fff; border-radius: 999px; padding: 0.6em 1.6em; font-weight: 500; }
+  .btn-primary:hover { background: #0a4cba; }
+  .btn-primary:disabled { opacity: 0.6; cursor: default; }
+  .btn-danger { background: #d93025; }
+  .btn-danger:hover { background: #b3241b; }
+  .btn-text { color: #0b57d0; font-weight: 500; border-radius: 6px; padding: 0.5em 0.8em; }
+  .btn-text:hover { background: #f0f4fe; }
+  .btn-text.danger { color: #d93025; }
+  .btn-text.danger:hover { background: #fdeceb; }
+
+  /* ===== topbar ===== */
+  .app { display: flex; flex-direction: column; height: 100dvh; }
+  .topbar { display: flex; align-items: center; gap: 1.2rem; padding: 0.55rem 1rem; }
+  .brand { display: flex; align-items: baseline; gap: 0.45rem; min-width: 150px; }
+  .brand-logo { font-family: 'Monofett', monospace; font-size: 1.55rem; }
+  .brand-mail { color: #5e5e5e; font-size: 1.15rem; }
+  .search { flex: 1; max-width: 640px; display: flex; align-items: center; gap: 0.6rem; background: #e9eef6; border-radius: 999px; padding: 0.55rem 1.1rem; color: #444; }
+  .search input { flex: 1; border: none; background: none; outline: none; font: inherit; font-size: 0.95rem; }
+  .account { margin-left: auto; display: flex; align-items: center; gap: 0.7rem; }
+  .me-email { color: #5e5e5e; font-size: 0.85rem; }
+  .avatar { width: 34px; height: 34px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #fff; font-weight: 600; flex-shrink: 0; user-select: none; }
+  .avatar-me { cursor: pointer; }
+
+  /* ===== shell ===== */
+  .shell { flex: 1; display: flex; min-height: 0; }
+  .side { width: 232px; padding: 0.4rem 0.6rem 0 0.9rem; flex-shrink: 0; }
+  .compose-btn { display: flex; align-items: center; gap: 0.7rem; background: #c2e7ff; border-radius: 14px; padding: 0.9rem 1.3rem; font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.15); margin-bottom: 0.9rem; }
+  .compose-btn:hover { box-shadow: 0 2px 6px rgba(0,0,0,0.25); }
+  .side nav { display: flex; flex-direction: column; gap: 2px; }
+  .folder { display: flex; align-items: center; gap: 0.8rem; padding: 0.5rem 1rem; border-radius: 999px; color: #333; text-align: left; }
+  .folder:hover { background: #e9eef6; }
+  .folder.active { background: #d3e3fd; font-weight: 600; }
+  .folder .badge { margin-left: auto; background: #0b57d0; color: #fff; border-radius: 999px; font-size: 0.72rem; padding: 0.1em 0.55em; font-weight: 600; }
+  .folder .badge-muted { background: #5e5e5e; }
+  .folder-name { flex: 1; }
+
+  .main { flex: 1; background: #fff; border-radius: 16px 16px 0 0; margin-right: 0.9rem; min-width: 0; display: flex; flex-direction: column; overflow: hidden; }
+  #list-view, #read-view { display: flex; flex-direction: column; min-height: 0; flex: 1; }
+
+  /* ===== toolbar/lista ===== */
+  .list-toolbar { display: flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.8rem; border-bottom: 1px solid #eee; min-height: 52px; }
+  .cb-wrap { display: inline-flex; align-items: center; justify-content: center; width: 34px; height: 34px; cursor: pointer; }
+  .cb-wrap input { width: 15px; height: 15px; cursor: pointer; accent-color: #0b57d0; }
+  .icon-btn { width: 38px; height: 38px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; color: #444; flex-shrink: 0; }
+  .icon-btn:hover { background: #eee; }
+  .icon-btn.sm { width: 32px; height: 32px; }
+  .list-count { color: #5e5e5e; font-size: 0.8rem; margin-left: auto; }
+  .sel-count { color: #1f1f1f; font-weight: 500; margin: 0 0.5rem; }
+  .sel-actions { display: flex; gap: 0.2rem; }
+  #list { overflow-y: auto; flex: 1; }
+  .row { display: flex; align-items: center; gap: 0.3rem; width: 100%; text-align: left; padding: 0.3rem 0.8rem 0.3rem 0.4rem; border-bottom: 1px solid #f1f3f4; background: #f7f9fc; cursor: pointer; position: relative; }
+  .row:hover { box-shadow: inset 0 0 0 999px rgba(0,0,0,0.03); }
+  .row.unread { background: #fff; }
+  .row.selected { background: #c2dbff !important; }
+  .row-cb { flex-shrink: 0; }
+  .star-btn { color: #bbb; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0; }
+  .star-btn:hover { color: #666; background: #eee; }
+  .star-btn.on { color: #f4b400; }
+  .row-avatar { width: 32px; height: 32px; font-size: 0.9rem; margin: 0 0.4rem; }
+  .row-who { width: 175px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #3c3c3c; }
+  .draft-label { color: #d93025; }
+  .row.unread .row-who { font-weight: 700; color: #111; }
+  .row-text { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #5e5e5e; }
+  .row-subject { color: #3c3c3c; }
+  .row.unread .row-subject { font-weight: 700; color: #111; }
+  .row-clip { flex-shrink: 0; }
+  .row-date { flex-shrink: 0; font-size: 0.78rem; color: #5e5e5e; width: 72px; text-align: right; }
+  .row.unread .row-date { font-weight: 700; color: #111; }
+  .row-actions { display: none; gap: 0.1rem; position: absolute; right: 0.6rem; background: inherit; }
+  .row:hover .row-actions { display: flex; }
+  .row:hover .row-date { visibility: hidden; }
+  .list-empty { padding: 3rem 1rem; text-align: center; color: #9aa0a6; }
+
+  /* ===== leitura ===== */
+  .read-toolbar { display: flex; align-items: center; gap: 0.3rem; padding: 0.45rem 0.8rem; border-bottom: 1px solid #eee; }
+  .read-actions { display: flex; gap: 0.2rem; }
+  .read-body { overflow-y: auto; flex: 1; padding: 1.2rem 1.6rem 2rem; }
+  .read-subject-row { display: flex; align-items: flex-start; gap: 0.5rem; margin: 0 0 1rem; }
+  #v-subject { font-size: 1.35rem; font-weight: 500; margin: 0; flex: 1; }
+  .read-head { display: flex; gap: 0.8rem; align-items: flex-start; margin-bottom: 1rem; }
+  .read-meta { flex: 1; min-width: 0; }
+  .read-from-row { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+  .read-from { font-weight: 600; overflow: hidden; text-overflow: ellipsis; }
+  .read-date { color: #5e5e5e; font-size: 0.8rem; flex-shrink: 0; }
+  .read-to { color: #5e5e5e; font-size: 0.83rem; }
+  #v-html { width: 100%; min-height: 55vh; border: none; }
+  #v-text { white-space: pre-wrap; word-break: break-word; font: inherit; line-height: 1.6; }
+  .attachments { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 0.8rem; }
+  .att-chip { display: inline-flex; align-items: center; gap: 0.45rem; border: 1px solid #dadce0; border-radius: 8px; padding: 0.45rem 0.7rem; background: #fff; font-size: 0.83rem; max-width: 260px; }
+  .att-chip:hover { background: #f8f9fa; }
+  .att-chip.busy { opacity: 0.5; }
+  .att-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .att-size { color: #5e5e5e; flex-shrink: 0; }
+  .att-x { color: #5e5e5e; padding: 0 0.1rem; }
+  .att-x:hover { color: #d93025; }
+  .btn-outline { display: inline-flex; align-items: center; gap: 0.5rem; border: 1px solid #dadce0; border-radius: 999px; padding: 0.55em 1.4em; font-weight: 500; color: #444; margin-top: 1.2rem; }
+  .btn-outline:hover { background: #f8f9fa; }
+
+  /* ===== composer ===== */
+  .composer { position: fixed; right: 16px; bottom: 0; width: min(540px, calc(100vw - 32px)); background: #fff; border-radius: 12px 12px 0 0; box-shadow: 0 8px 24px rgba(0,0,0,0.3); display: flex; flex-direction: column; z-index: 50; max-height: min(640px, 90dvh); }
+  .composer-head { background: #404040; color: #fff; border-radius: 12px 12px 0 0; padding: 0.6rem 1rem; display: flex; justify-content: space-between; align-items: center; font-size: 0.9rem; }
+  .composer-head button { color: #ddd; }
+  .composer-head button:hover { color: #fff; }
+  .composer-row { display: flex; align-items: center; gap: 0.5rem; border-bottom: 1px solid #e4e7eb; padding: 0.15rem 1rem; position: relative; transition: border-color 0.15s; }
+  .composer-row:focus-within { border-bottom: 2px solid #0b57d0; margin-bottom: -1px; }
+  .composer-row input { flex: 1; border: none; outline: none; font: inherit; padding: 0.55rem 0; min-width: 0; }
+  .composer-row input::placeholder { color: #b6bcc4; }
+  .row-label { color: #444; font-size: 0.82rem; font-weight: 600; min-width: 52px; }
+  .subject-row input { font-weight: 600; color: #1f1f1f; }
+  .editor-label { color: #444; font-size: 0.82rem; font-weight: 600; padding: 0.6rem 1rem 0; }
+
+  /* autocomplete de contatos */
+  .to-suggest { position: absolute; top: calc(100% + 2px); left: 3.4rem; right: 1rem; z-index: 140; max-height: 240px; overflow-y: auto; }
+  .suggest-item { display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left; padding: 0.5rem 0.9rem; }
+  .suggest-item:hover, .suggest-item.active { background: #f1f3f4; }
+  .suggest-avatar { width: 28px; height: 28px; font-size: 0.8rem; }
+  .suggest-mail { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .c-from { max-width: 10em; text-align: right; color: #0b57d0; }
+  .from-domain { color: #5e5e5e; font-size: 0.9rem; }
+  .editor { flex: 1; overflow-y: auto; min-height: 180px; padding: 0.6rem 1rem; }
+  .editor .tiptap { outline: none; min-height: 160px; }
+  .editor .tiptap p { margin: 0 0 0.4em; }
+  .editor .tiptap img { max-width: 100%; }
+  .editor .tiptap blockquote { border-left: 3px solid #dadce0; margin: 0.4em 0; padding-left: 0.8em; color: #5e5e5e; }
+  .c-attachments { display: flex; flex-wrap: wrap; gap: 0.4rem; padding: 0 1rem 0.4rem; }
+  .composer-foot { display: flex; align-items: center; gap: 0.5rem; padding: 0.6rem 1rem 0.8rem; }
+  .toolbar { display: flex; gap: 1px; flex-wrap: wrap; }
+  .toolbar button { min-width: 30px; height: 30px; border-radius: 6px; color: #444; font-size: 0.85rem; padding: 0 0.35rem; }
+  .toolbar button:hover { background: #eee; }
+  .toolbar button.on { background: #d3e3fd; color: #0b57d0; }
+  .c-status { margin-left: auto; color: #d93025; font-size: 0.8rem; }
+
+  /* ===== modal ===== */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(32,33,36,0.5); display: flex; align-items: center; justify-content: center; z-index: 100; }
+  .modal { background: #fff; border-radius: 16px; padding: 1.5rem 1.5rem 1rem; width: min(400px, calc(100vw - 40px)); box-shadow: 0 8px 30px rgba(0,0,0,0.3); }
+  .modal h3 { margin: 0 0 0.6rem; font-size: 1.15rem; font-weight: 500; }
+  .modal p { margin: 0 0 1rem; color: #5e5e5e; line-height: 1.5; }
+  .modal input { width: 100%; border: 1px solid #dadce0; border-radius: 8px; padding: 0.6rem 0.8rem; font: inherit; outline: none; margin-bottom: 1rem; }
+  .modal input:focus { border-color: #0b57d0; }
+  .modal-actions { display: flex; justify-content: flex-end; gap: 0.5rem; }
+
+  /* ===== loading ===== */
+  .progress { position: relative; height: 3px; overflow: hidden; margin-top: -3px; z-index: 60; }
+  .progress div { position: absolute; height: 100%; width: 35%; background: #0b57d0; border-radius: 2px; animation: progress-slide 1.1s ease-in-out infinite; }
+  @keyframes progress-slide { 0% { left: -35%; } 100% { left: 100%; } }
+  .skel { background: linear-gradient(90deg, #ececf1 25%, #f7f7fa 40%, #ececf1 60%); background-size: 600px 100%; animation: shimmer 1.3s infinite linear; border-radius: 6px; }
+  @keyframes shimmer { 0% { background-position: -600px 0; } 100% { background-position: 600px 0; } }
+  .skel-row { display: flex; gap: 0.9rem; padding: 0.75rem 1rem; align-items: center; border-bottom: 1px solid #f1f3f4; }
+  .btn-loading { position: relative; color: transparent !important; pointer-events: none; }
+  .btn-loading::after { content: ''; position: absolute; inset: 0; margin: auto; width: 16px; height: 16px; border: 2px solid rgba(255, 255, 255, 0.45); border-top-color: #fff; border-radius: 50%; animation: spin 0.7s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .att-chip.busy { position: relative; }
+  .att-chip.busy .att-icon { visibility: hidden; }
+  .att-chip.busy::before { content: ''; position: absolute; left: 0.7rem; width: 12px; height: 12px; border: 2px solid #c5c9d0; border-top-color: #0b57d0; border-radius: 50%; animation: spin 0.7s linear infinite; }
+
+  /* ===== menus (conta + contexto) ===== */
+  .menu { position: fixed; background: #fff; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); padding: 0.4rem 0; z-index: 130; min-width: 230px; }
+  .account { position: relative; }
+  .account-menu { position: absolute; top: 44px; right: 0; z-index: 90; }
+  .menu-item { display: flex; align-items: center; gap: 0.7rem; width: 100%; text-align: left; padding: 0.55rem 1.1rem; color: #333; }
+  .menu-item:hover { background: #f1f3f4; }
+  .menu-item.danger { color: #d93025; }
+  .menu-sep { height: 1px; background: #eee; margin: 0.3rem 0; }
+  .menu-header { display: flex; gap: 0.8rem; align-items: center; padding: 0.6rem 1.1rem 0.8rem; border-bottom: 1px solid #eee; margin-bottom: 0.3rem; }
+  .menu-id { display: flex; flex-direction: column; min-width: 0; }
+  .menu-id span { color: #5e5e5e; font-size: 0.82rem; overflow: hidden; text-overflow: ellipsis; }
+  .avatar-lg { width: 46px; height: 46px; font-size: 1.2rem; }
+  .avatar-xl { width: 72px; height: 72px; font-size: 1.7rem; }
+  .avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+
+  /* ===== perfil ===== */
+  .profile-avatar-row { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.2rem; }
+  .profile-avatar-btns { display: flex; flex-direction: column; align-items: flex-start; }
+  .profile-hint { color: #5e5e5e; font-size: 0.8rem; margin: -0.4rem 0 1rem; }
+  .profile-pass { margin-bottom: 1rem; }
+  .profile-pass summary { cursor: pointer; color: #0b57d0; font-weight: 500; margin-bottom: 0.8rem; }
+
+  /* ===== snackbar ===== */
+  .snackbar { position: fixed; left: 24px; bottom: 24px; background: #2d2e30; color: #f1f3f4; border-radius: 8px; padding: 0.85rem 1.1rem; display: flex; align-items: center; gap: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.35); z-index: 120; font-size: 0.9rem; max-width: min(480px, calc(100vw - 48px)); }
+  .snackbar button { color: #8ab4f8; font-weight: 600; }
+  #snack-close { color: #bbb; font-weight: 400; }
+
+  /* ===== mobile ===== */
+  @media (max-width: 780px) {
+    .me-email { display: none; }
+    .shell { flex-direction: column; }
+    .side { display: flex; align-items: center; gap: 0.6rem; width: 100%; padding: 0.2rem 0.8rem 0.6rem; overflow-x: auto; }
+    .compose-btn { margin: 0; padding: 0.6rem 1rem; flex-shrink: 0; }
+    .compose-btn span { display: none; }
+    .side nav { flex-direction: row; }
+    .folder-name { display: none; }
+    .folder { padding: 0.55rem; }
+    .folder .badge { margin-left: 0.2rem; }
+    .main { margin: 0; border-radius: 0; }
+    .row-who { width: 96px; }
+    .row-avatar, .row-cb { display: none; }
+    .row { padding-left: 0.6rem; }
+    .row-actions { display: none !important; }
+    .composer { right: 0; width: 100vw; max-height: 100dvh; border-radius: 0; }
+    .composer-head { border-radius: 0; }
+    .snackbar { left: 12px; right: 12px; bottom: 12px; }
+  }
+</style>

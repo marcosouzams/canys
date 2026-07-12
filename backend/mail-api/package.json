@@ -1,0 +1,10 @@
+{
+  "name": "canys-mail-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "API do webmail canys.com.br (Lambda): lista/lê e-mails do S3 e envia via SES.",
+  "dependencies": {
+    "postal-mime": "^2.4.3"
+  }
+}

@@ -12,6 +12,10 @@
   },
   "dependencies": {
     "@fontsource/monofett": "^5.2.8",
+    "@tiptap/core": "^3.27.3",
+    "@tiptap/extension-image": "^3.27.3",
+    "@tiptap/extension-placeholder": "^3.27.3",
+    "@tiptap/starter-kit": "^3.27.3",
     "astro": "^7.0.7"
   }
 }
