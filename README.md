@@ -19,4 +19,7 @@ automático roda via GitHub Actions (OIDC) a cada push na `main`.
 **Estado da infraestrutura, o que falta e como concluir/deployar:** veja
 [DEPLOY.md](DEPLOY.md).
 
+**E-mail / Amazon SES** (webmail em `canys.com.br/mail`, estado do pedido de
+produção no SES): veja [MAIL.md](MAIL.md).
+
 No ar (URL padrão, enquanto o domínio propaga): https://d2krik7nhbw5p3.cloudfront.net
